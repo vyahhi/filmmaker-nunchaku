@@ -1,0 +1,323 @@
+#!/usr/bin/env python3
+"""
+filmmaker.py — generate a short film from a concept using Claude CLI + Nunchaku API
+
+Usage:
+  python filmmaker.py "a lonely astronaut finds an alien cat"
+  python filmmaker.py          # Claude invents a concept
+"""
+
+import base64
+import json
+import os
+import subprocess
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+
+import requests
+
+NUNCHAKU_API_KEY = os.environ.get("NUNCHAKU_API_KEY")
+NUNCHAKU_BASE = "https://api.nunchaku.dev"
+
+
+# ── helpers ──────────────────────────────────────────────────────────────────
+
+def check_deps():
+    if not NUNCHAKU_API_KEY:
+        print("Error: NUNCHAKU_API_KEY not set. Export it before running.")
+        sys.exit(1)
+    r = subprocess.run(["claude", "--version"], capture_output=True)
+    if r.returncode != 0:
+        print("Error: 'claude' CLI not found. Install Claude Code first.")
+        sys.exit(1)
+    r = subprocess.run(["ffmpeg", "-version"], capture_output=True)
+    if r.returncode != 0:
+        print("Warning: ffmpeg not found. Final stitch will be skipped (brew install ffmpeg).")
+
+
+def call_claude(prompt: str) -> str:
+    result = subprocess.run(
+        ["claude", "-p", prompt, "--output-format", "text"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        print(f"Claude error:\n{result.stderr}")
+        sys.exit(1)
+    return result.stdout.strip()
+
+
+def nunchaku_headers() -> dict:
+    return {
+        "Authorization": f"Bearer {NUNCHAKU_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+
+def retry(fn, retries: int = 3):
+    """Run fn() up to `retries` times, handling 429 / 504. Sequential only."""
+    for attempt in range(retries):
+        resp = fn()
+        if resp.status_code == 429:
+            wait = int(resp.headers.get("Retry-After", 10))
+            print(f"  Rate limited — waiting {wait}s …")
+            time.sleep(wait)
+            continue
+        if resp.status_code == 504:
+            print(f"  Timeout — retry {attempt + 1}/{retries} …")
+            time.sleep(5)
+            continue
+        if resp.status_code == 402:
+            print("Error: out of Nunchaku credits. Check https://sundai.nunchaku.dev/")
+            sys.exit(1)
+        if not resp.ok:
+            print(f"Error {resp.status_code}: {resp.text}")
+            sys.exit(1)
+        return resp
+    print(f"Error: failed after {retries} retries.")
+    sys.exit(1)
+
+
+# ── planning ─────────────────────────────────────────────────────────────────
+
+PLAN_SCHEMA = """
+{
+  "title": "film title",
+  "style": "visual style, e.g. cinematic warm tones Studio Ghibli-inspired",
+  "characters": [
+    {"name": "name", "description": "detailed visual: hair clothing expression art-style full-body"}
+  ],
+  "scenes": [
+    {
+      "index": 1,
+      "character": "must match characters[].name exactly",
+      "image_prompt": "scene composition setting lighting — do NOT repeat character description",
+      "video_prompt": "motion description for animating this scene",
+      "narration": "subtitle text fitting ~5 seconds"
+    }
+  ]
+}
+"""
+
+PLAN_RULES = """
+Rules:
+- Exactly 5 scenes
+- Maximum 2 unique characters total
+- Exactly 1 character per scene
+- At least 1 character appears in 3+ scenes
+- style is prepended to every image prompt automatically — do not put it in image_prompt
+- image_prompt must NOT repeat character description
+- Output ONLY the JSON object. No markdown fences, no explanation.
+"""
+
+
+def generate_plan(concept: str) -> dict:
+    if concept:
+        intro = f'You are a creative film director. Write a short film plan for: "{concept}"'
+    else:
+        intro = (
+            "You are a creative film director. Invent a surprising, unexpected, "
+            "surreal concept and write a short film plan for it."
+        )
+
+    prompt = f"{intro}\n\nOutput ONLY valid JSON matching this schema:\n{PLAN_SCHEMA}\n{PLAN_RULES}"
+    print("Generating film plan via Claude …")
+    raw = call_claude(prompt)
+
+    # Strip accidental markdown fences
+    if raw.startswith("```"):
+        lines = raw.splitlines()
+        raw = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(f"Error: Claude returned invalid JSON.\n{e}\nRaw output:\n{raw[:500]}")
+        sys.exit(1)
+
+
+# ── nunchaku calls (all sequential — 1 concurrent thread) ────────────────────
+
+def gen_portrait(character: dict, style: str, out_path: Path):
+    prompt = f"{style}, {character['description']}, full body portrait"
+    print(f"  Portrait → {character['name']} …")
+
+    def call():
+        return requests.post(
+            f"{NUNCHAKU_BASE}/v1/images/generations",
+            headers=nunchaku_headers(),
+            json={
+                "model": "nunchaku-qwen-image",
+                "prompt": prompt,
+                "n": 1,
+                "size": "1280x720",
+                "tier": "fast",
+                "response_format": "b64_json",
+            },
+            timeout=120,
+        )
+
+    resp = retry(call)
+    out_path.write_bytes(base64.b64decode(resp.json()["data"][0]["b64_json"]))
+    print(f"    saved {out_path}")
+
+
+def gen_scene_image(scene: dict, style: str, portrait: Path, out_path: Path):
+    img_b64 = base64.b64encode(portrait.read_bytes()).decode()
+    prompt = f"{style}, {scene['image_prompt']}"
+    print(f"  Scene {scene['index']} image …")
+
+    def call():
+        return requests.post(
+            f"{NUNCHAKU_BASE}/v1/images/edits",
+            headers=nunchaku_headers(),
+            json={
+                "model": "nunchaku-qwen-image-edit",
+                "prompt": prompt,
+                "url": f"data:image/jpeg;base64,{img_b64}",
+                "n": 1,
+                "size": "1280x720",
+                "tier": "fast",
+                "response_format": "b64_json",
+            },
+            timeout=120,
+        )
+
+    resp = retry(call)
+    out_path.write_bytes(base64.b64decode(resp.json()["data"][0]["b64_json"]))
+    print(f"    saved {out_path}")
+
+
+def gen_scene_video(scene: dict, scene_img: Path, out_path: Path):
+    img_b64 = base64.b64encode(scene_img.read_bytes()).decode()
+    data_uri = f"data:image/jpeg;base64,{img_b64}"
+    prompt = scene["video_prompt"]
+    print(f"  Scene {scene['index']} video (~30s) …")
+
+    def call():
+        return requests.post(
+            f"{NUNCHAKU_BASE}/v1/video/animations",
+            headers=nunchaku_headers(),
+            json={
+                "model": "nunchaku-wan2.2-lightning-i2v",
+                "prompt": prompt,
+                "n": 1,
+                "size": "1280x720",
+                "num_frames": 81,
+                "num_inference_steps": 4,
+                "guidance_scale": 1.0,
+                "response_format": "b64_json",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "image_url", "image_url": {"url": data_uri}},
+                            {"type": "text", "text": prompt},
+                        ],
+                    }
+                ],
+            },
+            timeout=180,
+        )
+
+    resp = retry(call)
+    out_path.write_bytes(base64.b64decode(resp.json()["data"][0]["b64_json"]))
+    print(f"    saved {out_path}")
+
+
+# ── post-production ───────────────────────────────────────────────────────────
+
+def write_srt(scenes: list, out_path: Path):
+    def ts(secs: int) -> str:
+        h, m, s = secs // 3600, (secs % 3600) // 60, secs % 60
+        return f"{h:02d}:{m:02d}:{s:02d},000"
+
+    blocks = []
+    for i, scene in enumerate(scenes, 1):
+        blocks.append(f"{i}\n{ts((i-1)*5)} --> {ts(i*5)}\n{scene['narration']}\n")
+
+    out_path.write_text("\n".join(blocks))
+    print(f"  saved {out_path}")
+
+
+def stitch(clip_paths: list, out_path: Path, concat_file: Path) -> bool:
+    concat_file.write_text("\n".join(f"file '{p.resolve()}'" for p in clip_paths))
+    r = subprocess.run(
+        ["ffmpeg", "-y", "-f", "concat", "-safe", "0",
+         "-i", str(concat_file), "-c", "copy", str(out_path)],
+        capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        print(f"  ffmpeg failed: {r.stderr[-300:]}")
+        return False
+    return True
+
+
+# ── main ─────────────────────────────────────────────────────────────────────
+
+def main():
+    check_deps()
+
+    concept = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else None
+    if concept:
+        print(f"Concept: {concept}")
+    else:
+        print("No concept given — Claude will invent one.")
+
+    plan = generate_plan(concept)
+    print(f"\nTitle:      {plan['title']}")
+    print(f"Style:      {plan['style']}")
+    print(f"Characters: {[c['name'] for c in plan['characters']]}")
+    print(f"Scenes:     {len(plan['scenes'])}")
+
+    # Output directory
+    safe = "".join(c if c.isalnum() or c in "-_ " else "" for c in plan["title"]).strip().replace(" ", "_")
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_dir = Path("output") / f"{safe}_{stamp}"
+    chars_dir = out_dir / "characters"
+    scenes_dir = out_dir / "scenes"
+    chars_dir.mkdir(parents=True)
+    scenes_dir.mkdir(parents=True)
+    (out_dir / "plan.json").write_text(json.dumps(plan, indent=2))
+    print(f"\nOutput folder: {out_dir}\n")
+
+    # Character portraits
+    print("=== Character portraits ===")
+    portraits: dict[str, Path] = {}
+    for char in plan["characters"]:
+        safe_name = char["name"].lower().replace(" ", "_")
+        path = chars_dir / f"{safe_name}.jpg"
+        gen_portrait(char, plan["style"], path)
+        portraits[char["name"]] = path
+
+    # Scenes — strictly sequential
+    print("\n=== Scenes ===")
+    clip_paths: list[Path] = []
+    for scene in sorted(plan["scenes"], key=lambda s: s["index"]):
+        idx = scene["index"]
+        portrait = portraits.get(scene["character"]) or next(iter(portraits.values()))
+        scene_img = scenes_dir / f"scene_{idx:02d}.jpg"
+        scene_vid = scenes_dir / f"scene_{idx:02d}.mp4"
+
+        gen_scene_image(scene, plan["style"], portrait, scene_img)
+        gen_scene_video(scene, scene_img, scene_vid)
+        clip_paths.append(scene_vid)
+
+    # Subtitles
+    print("\n=== Subtitles ===")
+    write_srt(plan["scenes"], out_dir / "subtitles.srt")
+
+    # Stitch
+    print("\n=== Stitching ===")
+    final = out_dir / "final.mp4"
+    if stitch(clip_paths, final, out_dir / "concat.txt"):
+        print(f"  saved {final}")
+        print(f"\n✓ Done — {final}")
+    else:
+        print(f"\nDone (no stitch). Clips in {scenes_dir}")
+
+
+if __name__ == "__main__":
+    main()
