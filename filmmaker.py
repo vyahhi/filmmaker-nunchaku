@@ -61,16 +61,21 @@ def nunchaku_headers() -> dict:
 
 
 def retry(fn, retries: int = 3):
-    """Run fn() up to `retries` times, handling 429 / 504. Sequential only."""
+    """Run fn() up to `retries` times, handling 429 / 504 / timeouts. Sequential only."""
     for attempt in range(retries):
-        resp = fn()
+        try:
+            resp = fn()
+        except requests.exceptions.Timeout:
+            print(f"  Request timed out — retry {attempt + 1}/{retries} …")
+            time.sleep(5)
+            continue
         if resp.status_code == 429:
             wait = int(resp.headers.get("Retry-After", 10))
             print(f"  Rate limited — waiting {wait}s …")
             time.sleep(wait)
             continue
         if resp.status_code == 504:
-            print(f"  Timeout — retry {attempt + 1}/{retries} …")
+            print(f"  Gateway timeout — retry {attempt + 1}/{retries} …")
             time.sleep(5)
             continue
         if resp.status_code == 402:
@@ -160,7 +165,7 @@ def gen_portrait(character: dict, style: str, out_path: Path):
                 "tier": "fast",
                 "response_format": "b64_json",
             },
-            timeout=120,
+            timeout=240,
         )
 
     resp = retry(call)
@@ -186,7 +191,7 @@ def gen_scene_image(scene: dict, style: str, portrait: Path, out_path: Path):
                 "tier": "fast",
                 "response_format": "b64_json",
             },
-            timeout=120,
+            timeout=240,
         )
 
     resp = retry(call)
@@ -223,7 +228,7 @@ def gen_scene_video(scene: dict, scene_img: Path, out_path: Path):
                     }
                 ],
             },
-            timeout=180,
+            timeout=300,
         )
 
     resp = retry(call)
