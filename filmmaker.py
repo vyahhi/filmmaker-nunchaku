@@ -74,9 +74,9 @@ def retry(fn, retries: int = 3):
             print(f"  Rate limited — waiting {wait}s …")
             time.sleep(wait)
             continue
-        if resp.status_code == 504:
-            print(f"  Gateway timeout — retry {attempt + 1}/{retries} …")
-            time.sleep(5)
+        if resp.status_code in (504, 524):
+            print(f"  Gateway timeout ({resp.status_code}) — retry {attempt + 1}/{retries} …")
+            time.sleep(10)
             continue
         if resp.status_code == 402:
             print("Error: out of Nunchaku credits. Check https://sundai.nunchaku.dev/")
