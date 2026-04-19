@@ -338,18 +338,16 @@ def main():
 
     # Stitch
     print("\n=== Stitching ===")
-    raw = out_dir / "final_raw.mp4"
+    no_subs = out_dir / "video_no_subs.mp4"
     final = out_dir / "final.mp4"
-    if stitch(clip_paths, raw, out_dir / "concat.txt"):
-        print(f"  saved {raw}")
+    if stitch(clip_paths, no_subs, out_dir / "concat.txt"):
+        print(f"  saved {no_subs}")
         print("\n=== Burning subtitles ===")
-        if burn_subtitles(raw, srt_path, final):
-            raw.unlink()  # remove intermediate
+        if burn_subtitles(no_subs, srt_path, final):
             print(f"  saved {final}")
             print(f"\n✓ Done — {final}")
         else:
-            raw.rename(final)
-            print(f"\n✓ Done (no subtitles burned) — {final}")
+            print(f"\n✓ Done (no subtitles burned) — {no_subs}")
     else:
         print(f"\nDone (no stitch). Clips in {scenes_dir}")
 
