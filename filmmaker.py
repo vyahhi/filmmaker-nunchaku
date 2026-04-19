@@ -24,6 +24,7 @@ load_dotenv()
 NUNCHAKU_API_KEY = os.environ.get("NUNCHAKU_API_KEY")
 CLAUDE_BIN = os.environ.get("CLAUDE_BIN", "/Users/vyahhi/.claude/local/claude")
 FFMPEG_BIN = os.environ.get("FFMPEG_BIN", "/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg")
+FFPROBE_BIN = os.environ.get("FFPROBE_BIN", "/opt/homebrew/opt/ffmpeg-full/bin/ffprobe")
 NUNCHAKU_BASE = "https://api.nunchaku.dev"
 
 
@@ -239,14 +240,30 @@ def gen_scene_video(scene: dict, scene_img: Path, out_path: Path):
 
 # ── post-production ───────────────────────────────────────────────────────────
 
-def write_srt(scenes: list, out_path: Path):
-    def ts(secs: int) -> str:
-        h, m, s = secs // 3600, (secs % 3600) // 60, secs % 60
-        return f"{h:02d}:{m:02d}:{s:02d},000"
+def clip_duration(clip: Path) -> float:
+    r = subprocess.run(
+        [FFPROBE_BIN,
+         "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=noprint_wrappers=1:nokey=1", str(clip)],
+        capture_output=True, text=True,
+    )
+    return float(r.stdout.strip())
 
+
+def write_srt(scenes: list, clip_paths: list[Path], out_path: Path):
+    def ts(secs: float) -> str:
+        h = int(secs // 3600)
+        m = int((secs % 3600) // 60)
+        s = int(secs % 60)
+        ms = int(round((secs - int(secs)) * 1000))
+        return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
+
+    cursor = 0.0
     blocks = []
-    for i, scene in enumerate(scenes, 1):
-        blocks.append(f"{i}\n{ts((i-1)*5)} --> {ts(i*5)}\n{scene['narration']}\n")
+    for i, (scene, clip) in enumerate(zip(scenes, clip_paths), 1):
+        dur = clip_duration(clip)
+        blocks.append(f"{i}\n{ts(cursor)} --> {ts(cursor + dur)}\n{scene['narration']}\n")
+        cursor += dur
 
     out_path.write_text("\n".join(blocks))
     print(f"  saved {out_path}")
@@ -334,7 +351,7 @@ def main():
     # Subtitles
     print("\n=== Subtitles ===")
     srt_path = out_dir / "subtitles.srt"
-    write_srt(plan["scenes"], srt_path)
+    write_srt(plan["scenes"], clip_paths, srt_path)
 
     # Stitch
     print("\n=== Stitching ===")
