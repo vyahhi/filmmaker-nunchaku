@@ -265,17 +265,19 @@ def stitch(clip_paths: list, out_path: Path, concat_file: Path) -> bool:
 
 
 def burn_subtitles(video: Path, srt: Path, out_path: Path) -> bool:
-    # Escape path for ffmpeg subtitles filter (colons and backslashes)
-    srt_escaped = str(srt.resolve()).replace("\\", "/").replace(":", "\\:")
-    style = "FontName=Arial,FontSize=28,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=2,Shadow=1,Alignment=2,MarginV=20"
+    # Embed SRT as a mov_text track (native MP4 format — shows in QuickTime, VLC, etc.)
     r = subprocess.run(
-        ["ffmpeg", "-y", "-i", str(video),
-         "-vf", f"subtitles='{srt_escaped}':force_style='{style}'",
-         "-c:a", "copy", str(out_path)],
+        ["ffmpeg", "-y",
+         "-i", str(video),
+         "-i", str(srt),
+         "-c:v", "copy",
+         "-c:s", "mov_text",
+         "-metadata:s:s:0", "language=eng",
+         str(out_path)],
         capture_output=True, text=True,
     )
     if r.returncode != 0:
-        print(f"  subtitle burn failed: {r.stderr[-400:]}")
+        print(f"  subtitle embed failed: {r.stderr[-400:]}")
         return False
     return True
 
