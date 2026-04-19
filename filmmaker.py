@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 NUNCHAKU_API_KEY = os.environ.get("NUNCHAKU_API_KEY")
+CLAUDE_BIN = os.environ.get("CLAUDE_BIN", "/Users/vyahhi/.claude/local/claude")
 NUNCHAKU_BASE = "https://api.nunchaku.dev"
 
 
@@ -31,7 +32,7 @@ def check_deps():
     if not NUNCHAKU_API_KEY:
         print("Error: NUNCHAKU_API_KEY not set. Export it before running.")
         sys.exit(1)
-    r = subprocess.run(["claude", "--version"], capture_output=True)
+    r = subprocess.run([CLAUDE_BIN, "--version"], capture_output=True)
     if r.returncode != 0:
         print("Error: 'claude' CLI not found. Install Claude Code first.")
         sys.exit(1)
@@ -42,7 +43,7 @@ def check_deps():
 
 def call_claude(prompt: str) -> str:
     result = subprocess.run(
-        ["claude", "-p", prompt, "--output-format", "text"],
+        [CLAUDE_BIN, "-p", prompt, "--output-format", "text"],
         capture_output=True,
         text=True,
     )
