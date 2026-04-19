@@ -264,6 +264,22 @@ def stitch(clip_paths: list, out_path: Path, concat_file: Path) -> bool:
     return True
 
 
+def burn_subtitles(video: Path, srt: Path, out_path: Path) -> bool:
+    # Escape path for ffmpeg subtitles filter (colons and backslashes)
+    srt_escaped = str(srt.resolve()).replace("\\", "/").replace(":", "\\:")
+    style = "FontName=Arial,FontSize=28,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=2,Shadow=1,Alignment=2,MarginV=20"
+    r = subprocess.run(
+        ["ffmpeg", "-y", "-i", str(video),
+         "-vf", f"subtitles='{srt_escaped}':force_style='{style}'",
+         "-c:a", "copy", str(out_path)],
+        capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        print(f"  subtitle burn failed: {r.stderr[-400:]}")
+        return False
+    return True
+
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -316,14 +332,23 @@ def main():
 
     # Subtitles
     print("\n=== Subtitles ===")
-    write_srt(plan["scenes"], out_dir / "subtitles.srt")
+    srt_path = out_dir / "subtitles.srt"
+    write_srt(plan["scenes"], srt_path)
 
     # Stitch
     print("\n=== Stitching ===")
+    raw = out_dir / "final_raw.mp4"
     final = out_dir / "final.mp4"
-    if stitch(clip_paths, final, out_dir / "concat.txt"):
-        print(f"  saved {final}")
-        print(f"\n✓ Done — {final}")
+    if stitch(clip_paths, raw, out_dir / "concat.txt"):
+        print(f"  saved {raw}")
+        print("\n=== Burning subtitles ===")
+        if burn_subtitles(raw, srt_path, final):
+            raw.unlink()  # remove intermediate
+            print(f"  saved {final}")
+            print(f"\n✓ Done — {final}")
+        else:
+            raw.rename(final)
+            print(f"\n✓ Done (no subtitles burned) — {final}")
     else:
         print(f"\nDone (no stitch). Clips in {scenes_dir}")
 
