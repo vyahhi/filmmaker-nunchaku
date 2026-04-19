@@ -23,6 +23,7 @@ load_dotenv()
 
 NUNCHAKU_API_KEY = os.environ.get("NUNCHAKU_API_KEY")
 CLAUDE_BIN = os.environ.get("CLAUDE_BIN", "/Users/vyahhi/.claude/local/claude")
+FFMPEG_BIN = os.environ.get("FFMPEG_BIN", "/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg")
 NUNCHAKU_BASE = "https://api.nunchaku.dev"
 
 
@@ -36,9 +37,9 @@ def check_deps():
     if r.returncode != 0:
         print("Error: 'claude' CLI not found. Install Claude Code first.")
         sys.exit(1)
-    r = subprocess.run(["ffmpeg", "-version"], capture_output=True)
+    r = subprocess.run([FFMPEG_BIN, "-version"], capture_output=True)
     if r.returncode != 0:
-        print("Warning: ffmpeg not found. Final stitch will be skipped (brew install ffmpeg).")
+        print(f"Warning: ffmpeg not found at {FFMPEG_BIN}. Final stitch will be skipped.")
 
 
 def call_claude(prompt: str) -> str:
@@ -254,7 +255,7 @@ def write_srt(scenes: list, out_path: Path):
 def stitch(clip_paths: list, out_path: Path, concat_file: Path) -> bool:
     concat_file.write_text("\n".join(f"file '{p.resolve()}'" for p in clip_paths))
     r = subprocess.run(
-        ["ffmpeg", "-y", "-f", "concat", "-safe", "0",
+        [FFMPEG_BIN, "-y", "-f", "concat", "-safe", "0",
          "-i", str(concat_file), "-c", "copy", str(out_path)],
         capture_output=True, text=True,
     )
@@ -265,19 +266,17 @@ def stitch(clip_paths: list, out_path: Path, concat_file: Path) -> bool:
 
 
 def burn_subtitles(video: Path, srt: Path, out_path: Path) -> bool:
-    # Embed SRT as a mov_text track (native MP4 format — shows in QuickTime, VLC, etc.)
+    # Escape srt path for ffmpeg subtitles filter (colons must be \: on all platforms)
+    srt_esc = str(srt.resolve()).replace("\\", "/").replace(":", "\\:")
+    style = r"FontName=Arial,FontSize=28,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=2,Shadow=1,Alignment=2,MarginV=20"
     r = subprocess.run(
-        ["ffmpeg", "-y",
-         "-i", str(video),
-         "-i", str(srt),
-         "-c:v", "copy",
-         "-c:s", "mov_text",
-         "-metadata:s:s:0", "language=eng",
+        [FFMPEG_BIN, "-y", "-i", str(video),
+         "-vf", f"subtitles=filename={srt_esc}:force_style='{style}'",
          str(out_path)],
         capture_output=True, text=True,
     )
     if r.returncode != 0:
-        print(f"  subtitle embed failed: {r.stderr[-400:]}")
+        print(f"  subtitle burn failed: {r.stderr[-400:]}")
         return False
     return True
 
