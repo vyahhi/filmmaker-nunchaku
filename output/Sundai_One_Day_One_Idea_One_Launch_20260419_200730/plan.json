@@ -1,0 +1,51 @@
+{
+  "title": "Sundai: One Day, One Idea, One Launch",
+  "style": "cinematic warm amber tones, soft golden-hour light, Studio Ghibli-inspired painterly textures with subtle grain",
+  "characters": [
+    {
+      "name": "Maya",
+      "description": "young woman in her late 20s, short dark wavy hair with a few strands falling across her forehead, wearing a cozy oversized cream knit sweater and worn jeans, bare feet, focused yet dreamy expression, sitting cross-legged, Ghibli-style soft linework, full-body visible"
+    },
+    {
+      "name": "Ren",
+      "description": "lean man in his early 30s, messy chestnut hair, round wire-framed glasses, wearing a faded olive henley and dark joggers, holding a ceramic mug, gentle determined expression, Ghibli-style warm illustration, full-body visible"
+    }
+  ],
+  "scenes": [
+    {
+      "index": 1,
+      "character": "Maya",
+      "image_prompt": "Sunday morning kitchen bathed in warm golden sunrise light streaming through large windows, a cluttered desk nearby with sticky notes and a glowing laptop, steam rising from a coffee cup, cozy apartment interior, shallow depth of field, painterly light and shadow",
+      "video_prompt": "Camera slowly pulls back from the glowing laptop screen to reveal Maya sitting at the desk, she stretches her arms upward and smiles with anticipation, morning light shifts warmly across the room",
+      "narration": "Every Sunday, a blank canvas. One idea waiting to become real."
+    },
+    {
+      "index": 2,
+      "character": "Ren",
+      "image_prompt": "Overhead top-down view of a wooden table covered in handwritten sketches, wireframe diagrams, and colorful index cards, a hand drawing rapid circles and arrows, soft warm desk lamp illuminating the chaos of creativity, afternoon light through half-drawn blinds",
+      "video_prompt": "Ren's hand moves quickly across paper, sketching shapes and writing words, camera slowly rotates clockwise over the table, papers flutter slightly from a nearby fan",
+      "narration": "The prototype starts rough \u2014 all ideas do. That's the point."
+    },
+    {
+      "index": 3,
+      "character": "Maya",
+      "image_prompt": "Close-up of a laptop screen reflecting colorful code and a chat interface in a dim room, stacks of books and empty snack wrappers on the desk, fairy lights strung along the wall behind, late afternoon golden glow fading into blue dusk through the window",
+      "video_prompt": "Maya leans forward intensely toward the screen, fingers typing rapidly, pauses, then a wide smile breaks across her face as something on screen responds correctly, she pumps her fist slightly",
+      "narration": "When the AI answers back \u2014 that first spark. Nothing beats it."
+    },
+    {
+      "index": 4,
+      "character": "Maya",
+      "image_prompt": "Wide shot of a minimal living room turned launch command center, laptop open on a coffee table, phone propped nearby showing a live user count ticking up, soft evening lamplight casting long warm shadows, a half-eaten pizza box on the floor",
+      "video_prompt": "Maya paces excitedly then kneels to check the screen, the number on the phone climbs higher, she covers her mouth with both hands in disbelief, camera slowly zooms toward the glowing phone screen",
+      "narration": "Sunday evening. It's live. Real people are using it right now."
+    },
+    {
+      "index": 5,
+      "character": "Ren",
+      "image_prompt": "Exterior rooftop at twilight, city skyline glowing amber and violet in the background, a single open laptop casting a soft blue glow on the ledge, a coffee mug beside it, vast open sky above with early stars appearing, sense of quiet triumph and possibility",
+      "video_prompt": "Ren stands looking out at the city, wind gently moves his hair, he glances back at the laptop then back at the horizon, camera slowly cranes upward to reveal the full glittering cityscape beneath a deepening sky",
+      "narration": "Next Sunday, a new idea. The only limit is how many Sundays you have."
+    }
+  ]
+}

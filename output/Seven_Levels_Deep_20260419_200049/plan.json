@@ -1,0 +1,51 @@
+{
+  "title": "Seven Levels Deep",
+  "style": "cinematic cool-blue neon tones, Blade Runner 2049 atmosphere, hard geometric light and shadow, digital expressionism",
+  "characters": [
+    {
+      "name": "The Signal",
+      "description": "translucent humanoid figure composed of cascading amber half-precision numbers, flowing robes of soft floating digits, no fixed facial features \u2014 a shifting luminous presence, warm gold light radiating from within, full-body ethereal and weightless"
+    },
+    {
+      "name": "The Quantizer",
+      "description": "tall angular figure in a minimalist silver lab coat, short platinum hair, sharp calm expression, holds a crystalline balance scale that glows faint blue, full-body precise geometric aesthetic, eyes like polished chrome"
+    }
+  ],
+  "scenes": [
+    {
+      "index": 1,
+      "character": "The Signal",
+      "image_prompt": "vast infinite data warehouse, towering columns of blue light stretching to darkness, a lone figure standing at the center bathed in amber glow, fog rolling across a black reflective floor, sense of immense scale and latent weight",
+      "video_prompt": "slow pan across the warehouse columns, ambient digits drift downward like snow, figure gently pulses with inner light, camera slowly dollies toward them",
+      "narration": "Before compression, there is only abundance \u2014 more than the world can hold."
+    },
+    {
+      "index": 2,
+      "character": "The Quantizer",
+      "image_prompt": "close-up at a crystalline workbench, blue-lit instruments arranged with surgical precision, a holographic readout showing a waveform reaching its absolute maximum, hands raised to measure with the glowing scale, dramatic side-lighting casting sharp shadows",
+      "video_prompt": "hands move with deliberate care along the holographic waveform, the scale tips and holds, a single number \u2014 7 \u2014 ignites in the air above the workbench",
+      "narration": "Find the peak. Everything else is measured against it."
+    },
+    {
+      "index": 3,
+      "character": "The Signal",
+      "image_prompt": "the figure standing inside a compression chamber of geometric blue rings, each ring tightening inward, ambient numbers peeling away like layers of translucent skin, expression serene and surrendering, deep atmospheric depth behind",
+      "video_prompt": "rings slowly contract around the figure, floating digits spiral inward and vanish, the figure dims slightly but holds its form, a quiet implosion of light",
+      "narration": "To be quantized is not to be lost \u2014 it is to be known by your essential value."
+    },
+    {
+      "index": 4,
+      "character": "The Signal",
+      "image_prompt": "the figure now reduced to two interleaved silhouettes sharing a single crystalline byte, low nibble and high nibble side by side in perfect mirrored symmetry, surrounded by identical paired forms stretching to the horizon in deep blue fog",
+      "video_prompt": "camera pulls back slowly revealing infinite rows of packed pairs, each one pulsing faintly in unison, a vast quiet army of compressed light",
+      "narration": "Two become one. Even and odd, packed together \u2014 memory, halved."
+    },
+    {
+      "index": 5,
+      "character": "The Signal",
+      "image_prompt": "figure re-emerging from a dark matrix floor, slightly smaller than before but radiating a crisper colder light, standing before an enormous output grid blazing with half-precision results, triumphant low-angle composition against a cathedral of computation",
+      "video_prompt": "figure rises slowly, the grid behind ignites row by row in cascading light, camera cranes upward as the full output resolves into coherent brilliance",
+      "narration": "Smaller. Faster. Still true. The approximation that preserves the soul."
+    }
+  ]
+}
