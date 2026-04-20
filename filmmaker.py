@@ -255,9 +255,7 @@ def _get_kokoro():
     return _kokoro
 
 
-def gen_narration(text: str, out_path: Path):
-    kokoro = _get_kokoro()
-    audio, sample_rate = kokoro.create(text, voice=KOKORO_VOICE, speed=1.0, lang="en-us")
+def _save_wav(audio, sample_rate: int, out_path: Path):
     audio_int16 = (np.clip(audio, -1.0, 1.0) * 32767).astype(np.int16)
     with wave.open(str(out_path), "wb") as w:
         w.setnchannels(1)
@@ -266,43 +264,34 @@ def gen_narration(text: str, out_path: Path):
         w.writeframes(audio_int16.tobytes())
 
 
+def gen_narration(text: str, out_path: Path, max_duration: float = None):
+    kokoro = _get_kokoro()
+    audio, sample_rate = kokoro.create(text, voice=KOKORO_VOICE, speed=1.0, lang="en-us")
+
+    if max_duration is not None:
+        audio_dur = len(audio) / sample_rate
+        if audio_dur > max_duration:
+            # Regenerate at higher speed natively — better quality than post-stretch
+            speed = min(audio_dur / max_duration * 1.05, 2.0)  # Kokoro max is 2.0
+            audio, sample_rate = kokoro.create(text, voice=KOKORO_VOICE, speed=speed, lang="en-us")
+
+    _save_wav(audio, sample_rate, out_path)
+
+
 def _audio_duration(path: Path) -> float:
     with wave.open(str(path)) as w:
         return w.getnframes() / w.getframerate()
 
 
-def _atempo_chain(speed: float) -> str:
-    # atempo only accepts 0.5–2.0; chain filters for larger speedups
-    filters = []
-    while speed > 2.0:
-        filters.append("atempo=2.0")
-        speed /= 2.0
-    filters.append(f"atempo={speed:.6f}")
-    return ",".join(filters)
-
-
 def mix_audio(video: Path, audio: Path, out_path: Path):
-    vid_dur = clip_duration(video)
-    aud_dur = _audio_duration(audio)
-
-    # Speed up audio to fit video if it's longer (max 2× before it sounds odd)
-    if aud_dur > vid_dur:
-        speed = aud_dur / vid_dur
-        atempo = _atempo_chain(speed)
-        audio_filter = f"[1:a]{atempo}[a]"
-        audio_map = "[a]"
-    else:
-        audio_filter = None
-        audio_map = "1:a:0"
-
-    cmd = [FFMPEG_BIN, "-y", "-i", str(video), "-i", str(audio)]
-    if audio_filter:
-        cmd += ["-filter_complex", audio_filter, "-map", "0:v:0", "-map", audio_map]
-    else:
-        cmd += ["-map", "0:v:0", "-map", audio_map]
-    cmd += ["-c:v", "copy", "-c:a", "aac", "-b:a", "128k", "-shortest", str(out_path)]
-
-    r = subprocess.run(cmd, capture_output=True, text=True)
+    r = subprocess.run(
+        [FFMPEG_BIN, "-y",
+         "-i", str(video), "-i", str(audio),
+         "-map", "0:v:0", "-map", "1:a:0",
+         "-c:v", "copy", "-c:a", "aac", "-b:a", "128k",
+         "-shortest", str(out_path)],
+        capture_output=True, text=True,
+    )
     if r.returncode != 0:
         print(f"  audio mix failed: {r.stderr[-300:]}")
         return False
@@ -421,7 +410,7 @@ def main():
         # Narration audio + mix into clip
         narration_wav = scenes_dir / f"scene_{idx:02d}.wav"
         print(f"  Scene {idx} narration …")
-        gen_narration(scene["narration"], narration_wav)
+        gen_narration(scene["narration"], narration_wav, max_duration=clip_duration(scene_vid))
         scene_vid_audio = scenes_dir / f"scene_{idx:02d}_audio.mp4"
         if mix_audio(scene_vid, narration_wav, scene_vid_audio):
             print(f"    saved {scene_vid_audio}")
