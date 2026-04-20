@@ -91,10 +91,3 @@ final.mp4            # final film with subtitles burned in
 6. **Stitch** — ffmpeg concatenates clips → `video_no_subs.mp4`
 7. **Burn** — ffmpeg + libass renders subtitles into pixels → `final.mp4`
 
-## Viewing online
-
-To watch a generated film without downloading, use [livepush.io/mp4-player](https://livepush.io/mp4-player/) with a raw.githack.com URL:
-
-```
-https://livepush.io/mp4-player/?url=https://raw.githack.com/<user>/<repo>/main/output/<title>/final.mp4
-```
