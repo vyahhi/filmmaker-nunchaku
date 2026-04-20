@@ -160,7 +160,7 @@ def gen_portrait(character: dict, style: str, out_path: Path):
             f"{NUNCHAKU_BASE}/v1/images/generations",
             headers=nunchaku_headers(),
             json={
-                "model": "nunchaku-flux.2-klein-9b-base",
+                "model": "nunchaku-flux.2-klein-9b",
                 "prompt": prompt,
                 "n": 1,
                 "size": "1280x720",
@@ -185,7 +185,7 @@ def gen_scene_image(scene: dict, style: str, portrait: Path, out_path: Path):
             f"{NUNCHAKU_BASE}/v1/images/edits",
             headers=nunchaku_headers(),
             json={
-                "model": "nunchaku-flux.2-klein-9b-base-edit",
+                "model": "nunchaku-flux.2-klein-9b-edit",
                 "prompt": prompt,
                 "url": f"data:image/jpeg;base64,{img_b64}",
                 "n": 1,
