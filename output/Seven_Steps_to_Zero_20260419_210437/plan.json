@@ -1,0 +1,51 @@
+{
+  "title": "Seven Steps to Zero",
+  "style": "dark sci-fi noir, deep blues and electric greens, volumetric GPU-interior lighting, hard geometric shadows, cyberpunk aesthetic",
+  "characters": [
+    {
+      "name": "The Archivist",
+      "description": "tall androgynous figure in a silver compression suit with circuit-trace tattoos glowing amber, close-cropped white hair, intense analytical eyes like oscilloscope green, carrying a worn leather ledger with nibble-sized pages"
+    },
+    {
+      "name": "The Runner",
+      "description": "a compact figure in a black warp-lane jacket numbered 32, dark braided hair with glowing half-precision highlights, perpetually in motion, worn boots trailing spark trails, expression of urgent focus"
+    }
+  ],
+  "scenes": [
+    {
+      "index": 1,
+      "character": "The Archivist",
+      "image_prompt": "vast cathedral of floating-point data towers stretching to infinity, amber columns of numbers cascading like rainfall, single figure standing before an enormous glowing matrix wall, low camera angle emphasizing scale",
+      "video_prompt": "slow pan upward along data columns, The Archivist raises one hand and columns begin freezing into crystalline blocks, dust of discarded precision floats away like ash",
+      "narration": "Every weight carries more truth than it needs. My job is to find what remains when you strip away the noise."
+    },
+    {
+      "index": 2,
+      "character": "The Archivist",
+      "image_prompt": "intimate workshop space inside a warp tile, two glowing INT4 crystals being pressed together into a single byte-capsule on a steel workbench, green sparks, walls lined with scale-factor vials labeled in FP16",
+      "video_prompt": "The Archivist carefully presses two crystalline shards together, they fuse with a snap of light, place the packed capsule into a row of identical ones, the shelf fills rhythmically",
+      "narration": "Low nibble. High nibble. Two lives packed into one byte. The scale remembers what the number forgot."
+    },
+    {
+      "index": 3,
+      "character": "The Runner",
+      "image_prompt": "thunderous arena of parallel computation, 32 identical lanes of light stretching into darkness, figure sprinting down one lane carrying a uint4 fragment, synchronized figures in adjacent lanes visible as motion blur",
+      "video_prompt": "low tracking shot following The Runner at full speed, all 32 lanes fire simultaneously, MMA instruction emitted as a shockwave ripple across the arena floor",
+      "narration": "We are thirty-two. We are one warp. The matrix multiply begins the moment we agree."
+    },
+    {
+      "index": 4,
+      "character": "The Runner",
+      "image_prompt": "shared memory antechamber glowing cool blue, rows of scale-factor tablets arranged in perfect grids on luminous shelves, figure pausing mid-sprint to read a tablet, accumulator registers burning gold in cupped hands",
+      "video_prompt": "The Runner skids to a halt, grabs a scale tablet, multiplies it against the burning accumulator in their hands \u2014 the gold intensifies, they sprint onward without breaking rhythm",
+      "narration": "Without the scale you have integers. With it, you have meaning. Half precision. Enough."
+    },
+    {
+      "index": 5,
+      "character": "The Archivist",
+      "image_prompt": "output plane stretching to the horizon, a completed half-precision matrix shimmering like a frozen lake, figure kneeling at the edge examining the surface, reflection shows original full-precision ghost superimposed beneath",
+      "video_prompt": "slow dolly forward toward The Archivist kneeling at the matrix edge, they press one hand to the surface, cosine ripple radiates outward confirming 0.98 similarity, they close the leather ledger",
+      "narration": "Close enough to the truth that it passes. Far enough compressed that it flies. That is all a quantizer can ask."
+    }
+  ]
+}

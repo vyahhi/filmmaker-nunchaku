@@ -1,0 +1,5 @@
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Seven_Steps_to_Zero_20260419_210437/scenes/scene_01_audio.mp4'
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Seven_Steps_to_Zero_20260419_210437/scenes/scene_02_audio.mp4'
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Seven_Steps_to_Zero_20260419_210437/scenes/scene_03_audio.mp4'
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Seven_Steps_to_Zero_20260419_210437/scenes/scene_04_audio.mp4'
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Seven_Steps_to_Zero_20260419_210437/scenes/scene_05_audio.mp4'
