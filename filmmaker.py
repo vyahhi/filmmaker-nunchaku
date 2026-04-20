@@ -266,19 +266,43 @@ def gen_narration(text: str, out_path: Path):
         w.writeframes(audio_int16.tobytes())
 
 
+def _audio_duration(path: Path) -> float:
+    with wave.open(str(path)) as w:
+        return w.getnframes() / w.getframerate()
+
+
+def _atempo_chain(speed: float) -> str:
+    # atempo only accepts 0.5–2.0; chain filters for larger speedups
+    filters = []
+    while speed > 2.0:
+        filters.append("atempo=2.0")
+        speed /= 2.0
+    filters.append(f"atempo={speed:.6f}")
+    return ",".join(filters)
+
+
 def mix_audio(video: Path, audio: Path, out_path: Path):
-    # Pad/trim audio to exactly match video duration; re-encode video as h264
-    r = subprocess.run(
-        [FFMPEG_BIN, "-y",
-         "-i", str(video),
-         "-i", str(audio),
-         "-c:v", "copy",
-         "-c:a", "aac", "-b:a", "128k",
-         "-map", "0:v:0", "-map", "1:a:0",
-         "-shortest",
-         str(out_path)],
-        capture_output=True, text=True,
-    )
+    vid_dur = clip_duration(video)
+    aud_dur = _audio_duration(audio)
+
+    # Speed up audio to fit video if it's longer (max 2× before it sounds odd)
+    if aud_dur > vid_dur:
+        speed = aud_dur / vid_dur
+        atempo = _atempo_chain(speed)
+        audio_filter = f"[1:a]{atempo}[a]"
+        audio_map = "[a]"
+    else:
+        audio_filter = None
+        audio_map = "1:a:0"
+
+    cmd = [FFMPEG_BIN, "-y", "-i", str(video), "-i", str(audio)]
+    if audio_filter:
+        cmd += ["-filter_complex", audio_filter, "-map", "0:v:0", "-map", audio_map]
+    else:
+        cmd += ["-map", "0:v:0", "-map", audio_map]
+    cmd += ["-c:v", "copy", "-c:a", "aac", "-b:a", "128k", "-shortest", str(out_path)]
+
+    r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
         print(f"  audio mix failed: {r.stderr[-300:]}")
         return False
