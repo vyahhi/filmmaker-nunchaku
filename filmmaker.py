@@ -264,23 +264,32 @@ def _save_wav(audio, sample_rate: int, out_path: Path):
         w.writeframes(audio_int16.tobytes())
 
 
-def gen_narration(text: str, out_path: Path, max_duration: float = None):
+def gen_narration(text: str, out_path: Path, speed: float = 1.0):
     kokoro = _get_kokoro()
-    audio, sample_rate = kokoro.create(text, voice=KOKORO_VOICE, speed=1.0, lang="en-us")
-
-    if max_duration is not None:
-        audio_dur = len(audio) / sample_rate
-        if audio_dur > max_duration:
-            # Regenerate at higher speed natively — better quality than post-stretch
-            speed = min(audio_dur / max_duration * 1.05, 2.0)  # Kokoro max is 2.0
-            audio, sample_rate = kokoro.create(text, voice=KOKORO_VOICE, speed=speed, lang="en-us")
-
+    speed = max(0.5, min(speed, 2.0))
+    audio, sample_rate = kokoro.create(text, voice=KOKORO_VOICE, speed=speed, lang="en-us")
     _save_wav(audio, sample_rate, out_path)
+    return len(audio) / sample_rate  # return actual duration
 
 
 def _audio_duration(path: Path) -> float:
     with wave.open(str(path)) as w:
         return w.getnframes() / w.getframerate()
+
+
+def slow_video(video: Path, factor: float, out_path: Path) -> bool:
+    # factor > 1 = slower; re-encodes since setpts changes frame timing
+    r = subprocess.run(
+        [FFMPEG_BIN, "-y", "-i", str(video),
+         "-vf", f"setpts={factor:.6f}*PTS",
+         "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+         str(out_path)],
+        capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        print(f"  slow_video failed: {r.stderr[-300:]}")
+        return False
+    return True
 
 
 def mix_audio(video: Path, audio: Path, out_path: Path):
@@ -407,12 +416,26 @@ def main():
         gen_scene_image(scene, plan["style"], portrait, scene_img)
         gen_scene_video(scene, scene_img, scene_vid)
 
-        # Narration audio + mix into clip
+        # Narration — generate at 1x, then meet audio+video in the middle
         narration_wav = scenes_dir / f"scene_{idx:02d}.wav"
         print(f"  Scene {idx} narration …")
-        gen_narration(scene["narration"], narration_wav, max_duration=clip_duration(scene_vid))
+        vid_dur = clip_duration(scene_vid)
+        aud_dur = gen_narration(scene["narration"], narration_wav)
+
+        mixed_vid = scene_vid
+        if aud_dur > vid_dur:
+            target = (aud_dur + vid_dur) / 2
+            # Speed up audio to target
+            audio_speed = min(aud_dur / target, 2.0)
+            aud_dur = gen_narration(scene["narration"], narration_wav, speed=audio_speed)
+            # Slow down video to target
+            slowed = scenes_dir / f"scene_{idx:02d}_slow.mp4"
+            if slow_video(scene_vid, target / vid_dur, slowed):
+                mixed_vid = slowed
+            print(f"    target={target:.2f}s audio={aud_dur:.2f}s video={clip_duration(mixed_vid):.2f}s")
+
         scene_vid_audio = scenes_dir / f"scene_{idx:02d}_audio.mp4"
-        if mix_audio(scene_vid, narration_wav, scene_vid_audio):
+        if mix_audio(mixed_vid, narration_wav, scene_vid_audio):
             print(f"    saved {scene_vid_audio}")
             clip_paths.append(scene_vid_audio)
         else:

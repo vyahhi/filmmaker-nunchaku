@@ -1,19 +1,19 @@
 1
-00:00:00,000 --> 00:00:03,375
+00:00:00,000 --> 00:00:04,708
 Every weight carries more truth than it needs. My job is to find what remains when you strip away the noise.
 
 2
-00:00:03,375 --> 00:00:06,750
+00:00:04,708 --> 00:00:09,375
 Low nibble. High nibble. Two lives packed into one byte. The scale remembers what the number forgot.
 
 3
-00:00:06,750 --> 00:00:10,125
+00:00:09,375 --> 00:00:13,642
 We are thirty-two. We are one warp. The matrix multiply begins the moment we agree.
 
 4
-00:00:10,125 --> 00:00:13,500
+00:00:13,642 --> 00:00:17,653
 Without the scale you have integers. With it, you have meaning. Half precision. Enough.
 
 5
-00:00:13,500 --> 00:00:16,875
+00:00:17,653 --> 00:00:22,611
 Close enough to the truth that it passes. Far enough compressed that it flies. That is all a quantizer can ask.
