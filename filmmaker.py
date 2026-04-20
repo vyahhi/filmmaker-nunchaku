@@ -16,7 +16,9 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
 import requests
+import wave
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,6 +28,9 @@ CLAUDE_BIN = os.environ.get("CLAUDE_BIN", "/Users/vyahhi/.claude/local/claude")
 FFMPEG_BIN = os.environ.get("FFMPEG_BIN", "/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg")
 FFPROBE_BIN = os.environ.get("FFPROBE_BIN", "/opt/homebrew/opt/ffmpeg-full/bin/ffprobe")
 NUNCHAKU_BASE = "https://api.nunchaku.dev"
+KOKORO_MODEL = os.environ.get("KOKORO_MODEL", str(Path(__file__).parent / "models/kokoro-v1.0.onnx"))
+KOKORO_VOICES = os.environ.get("KOKORO_VOICES", str(Path(__file__).parent / "models/voices-v1.0.bin"))
+KOKORO_VOICE = os.environ.get("KOKORO_VOICE", "af_heart")
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -238,6 +243,48 @@ def gen_scene_video(scene: dict, scene_img: Path, out_path: Path):
     print(f"    saved {out_path}")
 
 
+# ── tts ──────────────────────────────────────────────────────────────────────
+
+_kokoro = None
+
+def _get_kokoro():
+    global _kokoro
+    if _kokoro is None:
+        from kokoro_onnx import Kokoro
+        _kokoro = Kokoro(KOKORO_MODEL, KOKORO_VOICES)
+    return _kokoro
+
+
+def gen_narration(text: str, out_path: Path):
+    kokoro = _get_kokoro()
+    audio, sample_rate = kokoro.create(text, voice=KOKORO_VOICE, speed=1.0, lang="en-us")
+    audio_int16 = (np.clip(audio, -1.0, 1.0) * 32767).astype(np.int16)
+    with wave.open(str(out_path), "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(sample_rate)
+        w.writeframes(audio_int16.tobytes())
+
+
+def mix_audio(video: Path, audio: Path, out_path: Path):
+    # Pad/trim audio to exactly match video duration; re-encode video as h264
+    r = subprocess.run(
+        [FFMPEG_BIN, "-y",
+         "-i", str(video),
+         "-i", str(audio),
+         "-c:v", "copy",
+         "-c:a", "aac", "-b:a", "128k",
+         "-map", "0:v:0", "-map", "1:a:0",
+         "-shortest",
+         str(out_path)],
+        capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        print(f"  audio mix failed: {r.stderr[-300:]}")
+        return False
+    return True
+
+
 # ── post-production ───────────────────────────────────────────────────────────
 
 def clip_duration(clip: Path) -> float:
@@ -346,7 +393,17 @@ def main():
 
         gen_scene_image(scene, plan["style"], portrait, scene_img)
         gen_scene_video(scene, scene_img, scene_vid)
-        clip_paths.append(scene_vid)
+
+        # Narration audio + mix into clip
+        narration_wav = scenes_dir / f"scene_{idx:02d}.wav"
+        print(f"  Scene {idx} narration …")
+        gen_narration(scene["narration"], narration_wav)
+        scene_vid_audio = scenes_dir / f"scene_{idx:02d}_audio.mp4"
+        if mix_audio(scene_vid, narration_wav, scene_vid_audio):
+            print(f"    saved {scene_vid_audio}")
+            clip_paths.append(scene_vid_audio)
+        else:
+            clip_paths.append(scene_vid)  # fallback: no audio
 
     # Subtitles
     print("\n=== Subtitles ===")

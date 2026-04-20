@@ -2,13 +2,14 @@
 
 Generate a short film (~17s MP4) from a one-line concept.
 
-**Pipeline:** Claude CLI writes the plan → Nunchaku generates images & videos → ffmpeg stitches the final film with burned-in subtitles.
+**Pipeline:** Claude CLI writes the plan → Nunchaku generates images & videos → Kokoro TTS narrates each scene → ffmpeg stitches the final film with burned-in subtitles.
 
 ## Requirements
 
 - [Claude Code](https://claude.ai/code) CLI (provides the `claude` command)
 - Python 3.9+
 - ffmpeg with **libass** (for burned-in subtitles — see below)
+- Kokoro TTS model files (for narration — see below)
 - A Nunchaku API key
 
 ## Installation
@@ -21,7 +22,16 @@ cd filmmaker-nunchaku
 pip install -r requirements.txt
 ```
 
-### 2. Install ffmpeg with libass
+### 2. Download Kokoro TTS model files
+
+```bash
+mkdir -p models && cd models
+curl -LO https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/kokoro-v1.0.onnx
+curl -LO https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/voices-v1.0.bin
+cd ..
+```
+
+### 3. Install ffmpeg with libass
 
 The standard `brew install ffmpeg` does **not** include libass (required for burning subtitles into the video). Install the full build instead:
 
@@ -33,7 +43,7 @@ This installs to `/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg`. The script uses thi
 
 > **Linux:** `apt install ffmpeg` usually includes libass. If subtitle burning fails, try `apt install ffmpeg libass-dev`.
 
-### 3. Set your API key
+### 4. Set your API key
 
 ```bash
 cp .env.example .env
@@ -89,6 +99,9 @@ Video cost may vary — pricing per step is not published.
 | `CLAUDE_BIN` | `/Users/vyahhi/.claude/local/claude` | Path to `claude` CLI |
 | `FFMPEG_BIN` | `/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg` | Path to ffmpeg with libass |
 | `FFPROBE_BIN` | `/opt/homebrew/opt/ffmpeg-full/bin/ffprobe` | Path to ffprobe |
+| `KOKORO_MODEL` | `models/kokoro-v1.0.onnx` | Path to Kokoro ONNX model |
+| `KOKORO_VOICES` | `models/voices-v1.0.bin` | Path to Kokoro voices file |
+| `KOKORO_VOICE` | `af_heart` | Voice to use for narration |
 
 ## How it works
 
@@ -96,7 +109,8 @@ Video cost may vary — pricing per step is not published.
 2. **Portraits** — one Nunchaku text→image call per character (reference portrait)
 3. **Scene images** — Nunchaku image→image edit seeded from the character portrait (ensures visual consistency across scenes)
 4. **Scene videos** — Nunchaku image→video per scene (~30s each, strictly sequential)
-5. **Subtitles** — SRT written with timestamps derived from actual clip durations via ffprobe
-6. **Stitch** — ffmpeg concatenates clips → `video_no_subs.mp4`
-7. **Burn** — ffmpeg + libass renders subtitles into pixels → `final.mp4`
+5. **Narration** — Kokoro TTS generates a WAV per scene from the narration text; mixed into the clip via ffmpeg
+6. **Subtitles** — SRT written with timestamps derived from actual clip durations via ffprobe
+7. **Stitch** — ffmpeg concatenates clips → `video_no_subs.mp4`
+8. **Burn** — ffmpeg + libass renders subtitles into pixels → `final.mp4`
 
