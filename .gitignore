@@ -1,5 +1,5 @@
 .env
-output/old/
+output/.old/
 __pycache__/
 *.pyc
 .DS_Store
