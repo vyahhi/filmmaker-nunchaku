@@ -9,7 +9,7 @@ Generate a short film (~17s MP4) from a one-line concept.
 - [Claude Code](https://claude.ai/code) CLI (provides the `claude` command)
 - Python 3.9+
 - ffmpeg with **libass** (for burned-in subtitles — see below)
-- A Nunchaku API key from [sundai.nunchaku.dev](https://sundai.nunchaku.dev/)
+- A Nunchaku API key
 
 ## Installation
 
@@ -79,7 +79,7 @@ Per film (approximate, based on current Nunchaku pricing):
 | Scene videos (image→video, 20 steps) | 5 | ~$0.025+ | ~$0.125+ |
 | **Total** | | | **~$0.15–0.20** |
 
-Video cost may vary — pricing per step is not published. Check [sundai.nunchaku.dev](https://sundai.nunchaku.dev/) for current rates.
+Video cost may vary — pricing per step is not published.
 
 ## Environment variables
 
