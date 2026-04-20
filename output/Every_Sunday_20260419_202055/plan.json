@@ -1,0 +1,51 @@
+{
+  "title": "Every Sunday",
+  "style": "cinematic warm amber tones, soft golden hour lighting, Studio Ghibli-inspired painterly textures, hand-drawn aesthetic",
+  "characters": [
+    {
+      "name": "Mira",
+      "description": "Young woman in her late 20s, short dark wavy hair tucked behind one ear, wearing an oversized cream-colored hoodie and worn olive cargo pants, round wire-frame glasses pushed up on her nose, expression of focused wonder, slightly paint-stained fingertips, full-body Ghibli-style illustration with soft linework"
+    },
+    {
+      "name": "Leo",
+      "description": "Man in his early 30s, tousled sandy hair, wearing a faded navy t-shirt with a small circuit-board graphic and charcoal joggers, warm smile lines at his eyes, holding a chipped ceramic mug, relaxed and curious posture, full-body Ghibli-style illustration with warm hatching shadows"
+    }
+  ],
+  "scenes": [
+    {
+      "index": 1,
+      "character": "Mira",
+      "image_prompt": "Wide establishing shot of a cozy attic studio at dawn, skylights glowing amber, cluttered desk covered in sticky notes and open laptops, potted ferns catching early light, warm dust motes floating, city rooftops visible through the window below a pastel sunrise sky",
+      "video_prompt": "Camera slowly pulls back from the window as dawn light sweeps across the desk, sticky notes flutter gently in a soft breeze, laptop screen flickers to life",
+      "narration": "Every Sunday, the world gets a little quieter. And we build."
+    },
+    {
+      "index": 2,
+      "character": "Leo",
+      "image_prompt": "Medium shot of a kitchen nook with morning sun slanting across a wooden table, two steaming mugs, a whiteboard covered in rough sketches and arrows leaning against the wall, warm yellow walls, a calico cat sitting on a stool in the background",
+      "video_prompt": "Leo raises his mug thoughtfully, eyes drifting to the whiteboard, a slow zoom onto the sketched diagrams as steam curls upward",
+      "narration": "One idea. One weekend. What could go wrong?"
+    },
+    {
+      "index": 3,
+      "character": "Mira",
+      "image_prompt": "Close-up over-the-shoulder shot looking at a glowing monitor displaying a colorful interface, ambient lamp casting a warm halo in a darkened room, abstract code and UI shapes reflected in her glasses, cables and breadboards on the desk surface",
+      "video_prompt": "Screen flickers as new elements appear, the reflection in her glasses brightens, her hand moves to the keyboard with quiet determination",
+      "narration": "Prototypes don't need to be perfect. They need to be real."
+    },
+    {
+      "index": 4,
+      "character": "Mira",
+      "image_prompt": "Wide shot of the attic studio in late afternoon golden light, walls now covered with printed screenshots and hand-drawn flowcharts pinned with colorful tacks, a phone propped on a stack of books showing a live app demo, warm long shadows across the wooden floor",
+      "video_prompt": "Camera pans slowly across the pinned artifacts on the wall, pausing on a glowing phone screen showing a working prototype, dust motes drift through the golden rays",
+      "narration": "By sunset, something that didn't exist \u2014 does."
+    },
+    {
+      "index": 5,
+      "character": "Leo",
+      "image_prompt": "Exterior dusk shot of the building's rooftop, city lights beginning to blink on across the skyline, a small folding table with two laptops open side by side, warm string lights strung along a railing, clouds painted in violet and gold overhead",
+      "video_prompt": "Wide drone-style pull-back revealing the city sprawl as rooftop lights glow to life, a gentle breeze stirs papers on the table, the two laptop screens pulse with a soft blue light",
+      "narration": "Sundai. Ship something new. See you next Sunday."
+    }
+  ]
+}

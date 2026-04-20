@@ -1,0 +1,5 @@
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Every_Sunday_20260419_202055/scenes/scene_01.mp4'
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Every_Sunday_20260419_202055/scenes/scene_02.mp4'
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Every_Sunday_20260419_202055/scenes/scene_03.mp4'
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Every_Sunday_20260419_202055/scenes/scene_04.mp4'
+file '/Users/vyahhi/projects/sundai/nunchaku/filmmaker-nunchaku/output/Every_Sunday_20260419_202055/scenes/scene_05.mp4'
