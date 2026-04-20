@@ -264,12 +264,17 @@ def _save_wav(audio, sample_rate: int, out_path: Path):
         w.writeframes(audio_int16.tobytes())
 
 
+NARRATION_TAIL_SILENCE = 0.4  # seconds of silence appended after each narration
+
+
 def gen_narration(text: str, out_path: Path, speed: float = 1.0):
     kokoro = _get_kokoro()
     speed = max(0.5, min(speed, 2.0))
     audio, sample_rate = kokoro.create(text, voice=KOKORO_VOICE, speed=speed, lang="en-us")
+    silence = np.zeros(int(sample_rate * NARRATION_TAIL_SILENCE), dtype=np.float32)
+    audio = np.concatenate([audio, silence])
     _save_wav(audio, sample_rate, out_path)
-    return len(audio) / sample_rate  # return actual duration
+    return len(audio) / sample_rate
 
 
 def _audio_duration(path: Path) -> float:
