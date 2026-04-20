@@ -289,7 +289,7 @@ def slow_video(video: Path, factor: float, out_path: Path) -> bool:
     r = subprocess.run(
         [FFMPEG_BIN, "-y", "-i", str(video),
          "-vf", f"setpts={factor:.6f}*PTS",
-         "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+         "-c:v", "libx264", "-preset", "fast", "-crf", "18", "-pix_fmt", "yuv420p",
          str(out_path)],
         capture_output=True, text=True,
     )
@@ -338,22 +338,64 @@ def write_srt(scenes: list, clip_paths: list[Path], out_path: Path):
     blocks = []
     for i, (scene, clip) in enumerate(zip(scenes, clip_paths), 1):
         dur = clip_duration(clip)
-        blocks.append(f"{i}\n{ts(cursor)} --> {ts(cursor + dur)}\n{scene['narration']}\n")
-        cursor += dur
+        blocks.append(f"{i}\n{ts(cursor)} --> {ts(cursor + dur - CROSSFADE_DURATION)}\n{scene['narration']}\n")
+        cursor += dur - CROSSFADE_DURATION  # clips overlap during crossfade
 
     out_path.write_text("\n".join(blocks))
     print(f"  saved {out_path}")
 
 
+CROSSFADE_DURATION = 0.5  # seconds
+
+
 def stitch(clip_paths: list, out_path: Path, concat_file: Path) -> bool:
-    concat_file.write_text("\n".join(f"file '{p.resolve()}'" for p in clip_paths))
-    r = subprocess.run(
-        [FFMPEG_BIN, "-y", "-f", "concat", "-safe", "0",
-         "-i", str(concat_file), "-c", "copy", str(out_path)],
-        capture_output=True, text=True,
-    )
+    if len(clip_paths) == 1:
+        import shutil
+        shutil.copy(clip_paths[0], out_path)
+        return True
+
+    n = len(clip_paths)
+    cf = CROSSFADE_DURATION
+
+    # Build filter_complex for video xfade + audio acrossfade
+    inputs = " ".join(f"-i {p.resolve()}" for p in clip_paths)
+    durations = [clip_duration(p) for p in clip_paths]
+
+    # xfade offsets: each transition starts at cumulative_duration - cf
+    video_filters = []
+    audio_filters = []
+    v_prev, a_prev = "[0:v]", "[0:a]"
+    cumulative = durations[0]
+
+    for i in range(1, n):
+        v_out = f"[v{i}]" if i < n - 1 else "[vout]"
+        a_out = f"[a{i}]" if i < n - 1 else "[aout]"
+        offset = max(cumulative - cf, 0)
+        video_filters.append(
+            f"{v_prev}[{i}:v]xfade=transition=fade:duration={cf}:offset={offset:.4f}{v_out}"
+        )
+        audio_filters.append(
+            f"{a_prev}[{i}:a]acrossfade=d={cf}{a_out}"
+        )
+        v_prev, a_prev = v_out, a_out
+        cumulative += durations[i] - cf
+
+    filter_complex = ";".join(video_filters + audio_filters)
+
+    cmd = [FFMPEG_BIN, "-y"]
+    for p in clip_paths:
+        cmd += ["-i", str(p.resolve())]
+    cmd += [
+        "-filter_complex", filter_complex,
+        "-map", "[vout]", "-map", "[aout]",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "18", "-pix_fmt", "yuv420p",
+        "-c:a", "aac", "-b:a", "128k",
+        str(out_path),
+    ]
+
+    r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
-        print(f"  ffmpeg failed: {r.stderr[-300:]}")
+        print(f"  ffmpeg crossfade failed: {r.stderr[-400:]}")
         return False
     return True
 
