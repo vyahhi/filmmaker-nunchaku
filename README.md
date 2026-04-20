@@ -68,6 +68,19 @@ video_no_subs.mp4    # stitched clips, no subtitles
 final.mp4            # final film with subtitles burned in
 ```
 
+## Cost estimate
+
+Per film (approximate, based on current Nunchaku pricing):
+
+| Step | Calls | Price each | Subtotal |
+|------|-------|-----------|----------|
+| Character portraits (text→image, `fast`) | ~2 | $0.0032 | ~$0.006 |
+| Scene images (image→image edit, `fast`) | 5 | $0.004 | $0.020 |
+| Scene videos (image→video, 20 steps) | 5 | ~$0.025+ | ~$0.125+ |
+| **Total** | | | **~$0.15–0.20** |
+
+Video cost may vary — pricing per step is not published. Check [sundai.nunchaku.dev](https://sundai.nunchaku.dev/) for current rates.
+
 ## Environment variables
 
 | Variable | Default | Description |
