@@ -101,7 +101,7 @@ Video cost may vary — pricing per step is not published.
 | `FFPROBE_BIN` | `/opt/homebrew/opt/ffmpeg-full/bin/ffprobe` | Path to ffprobe |
 | `KOKORO_MODEL` | `models/kokoro-v1.0.onnx` | Path to Kokoro ONNX model |
 | `KOKORO_VOICES` | `models/voices-v1.0.bin` | Path to Kokoro voices file |
-| `KOKORO_VOICE` | `af_heart` | Voice to use for narration |
+| `KOKORO_VOICE` | `af_sarah` | Voice to use for narration |
 
 ## How it works
 

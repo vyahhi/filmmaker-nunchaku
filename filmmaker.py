@@ -30,7 +30,7 @@ FFPROBE_BIN = os.environ.get("FFPROBE_BIN", "/opt/homebrew/opt/ffmpeg-full/bin/f
 NUNCHAKU_BASE = "https://api.nunchaku.dev"
 KOKORO_MODEL = os.environ.get("KOKORO_MODEL", str(Path(__file__).parent / "models/kokoro-v1.0.onnx"))
 KOKORO_VOICES = os.environ.get("KOKORO_VOICES", str(Path(__file__).parent / "models/voices-v1.0.bin"))
-KOKORO_VOICE = os.environ.get("KOKORO_VOICE", "af_heart")
+KOKORO_VOICE = os.environ.get("KOKORO_VOICE", "af_sarah")
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
