@@ -1,0 +1,51 @@
+{
+  "title": "Every Sunday",
+  "style": "cinematic warm golden-hour tones, soft indie film aesthetic with naturalistic window light, muted earth palette with amber accents",
+  "characters": [
+    {
+      "name": "Alex",
+      "description": "late-20s developer, tousled dark hair with a few loose curls, wearing a faded charcoal hoodie and slim dark jeans, focused expression with tired but lit-up eyes, slight stubble, holding a ceramic coffee mug, full-body casual standing pose"
+    },
+    {
+      "name": "Jamie",
+      "description": "mid-20s collaborator, curly auburn hair loosely pulled back, wearing an oversized vintage band tee and soft jogger pants, bright curious eyes and an easy wide grin, full-body relaxed sitting pose on a beanbag"
+    }
+  ],
+  "scenes": [
+    {
+      "index": 1,
+      "character": "Alex",
+      "image_prompt": "Sunday morning kitchen, warm sunlight streaming through linen curtains onto a cluttered countertop, wide shot with soft haze in the air, glowing phone screen casting faint light upward",
+      "video_prompt": "Alex slowly lowers the phone and looks up toward the light, a quiet smile spreading, subtle camera push-in",
+      "narration": "Every Sunday starts with one question: what can we build today?"
+    },
+    {
+      "index": 2,
+      "character": "Alex",
+      "image_prompt": "Small home studio desk covered in sticky notes and half-empty coffee cups, two monitors glowing with code editors, warm overhead lamp casting a focused cone of light, medium side-angle shot",
+      "video_prompt": "Hands type rapidly, pause to drag a sticky note aside, fingers tap in rhythm, slight head bob of deep concentration",
+      "narration": "Six hours. One idea. Zero excuses."
+    },
+    {
+      "index": 3,
+      "character": "Alex",
+      "image_prompt": "Same desk, laptop open showing a minimal AI chat interface prototype, late-afternoon amber light cutting across the room at a low angle, close-up on the laptop screen reflecting in wide-open eyes",
+      "video_prompt": "Alex leans forward, types a test prompt, eyes widen as the AI responds \u2014 a quiet exhale, then a restrained fist-pump just below frame",
+      "narration": "It works. It actually works."
+    },
+    {
+      "index": 4,
+      "character": "Jamie",
+      "image_prompt": "Cozy living room corner, warm floor lamp beside a beanbag, phone held up displaying a clean prototype UI, soft evening glow filling the background, medium shot",
+      "video_prompt": "Jamie scrolls through the prototype, eyebrows rising with growing delight, looks up and gives a slow thumbs-up toward camera",
+      "narration": "First user feedback, straight from the couch."
+    },
+    {
+      "index": 5,
+      "character": "Alex",
+      "image_prompt": "Same desk at dusk, one monitor showing a live product page going public, another displaying a rising visitor counter, silhouette against dual screen glow, wide shot with room falling into shadow",
+      "video_prompt": "Alex presses Enter, leans back in the chair, arms stretch upward in a slow victory stretch, quiet exhale as the room dims into evening",
+      "narration": "Launched. See you next Sunday."
+    }
+  ]
+}

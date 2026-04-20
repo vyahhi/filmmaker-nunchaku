@@ -1,0 +1,51 @@
+{
+  "title": "The Cartographer of Forgotten Sounds",
+  "style": "melancholic impressionist oil painting aesthetic, muted indigo and amber palette, visible brushstroke texture",
+  "characters": [
+    {
+      "name": "Maren",
+      "description": "a woman in her 40s with silver-streaked black hair pinned loosely, wearing an oversized burgundy wool coat with ink-stained fingers, round brass spectacles perched on her nose, tired but luminous dark eyes, full-body standing posture slightly hunched forward as if listening"
+    },
+    {
+      "name": "The Sound",
+      "description": "a translucent humanoid figure made entirely of rippling sound waves rendered as visible amber sine curves, genderless face with an open mouth frozen mid-note, barefoot, no clothing only layered waveforms composing a body"
+    }
+  ],
+  "scenes": [
+    {
+      "index": 1,
+      "character": "Maren",
+      "image_prompt": "vast empty library where all the books have become seashells arranged on infinite shelves, a single wooden desk with unrolled maps covered in musical notation instead of geography, dust motes frozen mid-air, green banker's lamp casting amber cone of light, perspective looking down a long corridor of shell-shelves",
+      "video_prompt": "Maren slowly unrolls a map across the desk, leaning in closer as the notation begins to vibrate faintly, dust motes begin drifting upward against gravity",
+      "narration": "She had been mapping sounds no one remembered anymore."
+    },
+    {
+      "index": 2,
+      "character": "The Sound",
+      "image_prompt": "the space between two walls that are slowly breathing, condensation forming shapes of musical clefs on stone surfaces, floor is a shallow pool of still mercury reflecting an inverted sky of tangled headphone wires",
+      "video_prompt": "The Sound walks across the mercury surface leaving ripple-rings of visible sound waves, each footfall producing colors instead of noise, waveform body contracting and expanding like breath",
+      "narration": "It arrived the way all forgotten things do \u2014 sideways."
+    },
+    {
+      "index": 3,
+      "character": "Maren",
+      "image_prompt": "rooftop of a building above the clouds at twilight, city below visible as a grid of amber pinpoints, large drafting table with brass instruments and a compass that spins in circles, wind pulling loose pages into the sky",
+      "video_prompt": "Maren reaches up and plucks a page from mid-air, pressing it against the table, her coat billowing; she writes furiously with a quill that leaves silver trails instead of ink",
+      "narration": "Every sound had a shape. She only needed to find where it lived."
+    },
+    {
+      "index": 4,
+      "character": "The Sound",
+      "image_prompt": "inside a grandfather clock scaled to cathedral size, enormous gears turning in slow motion, pendulum swinging through chambers filled with amber fog, staircases leading into the clock face from behind the numerals",
+      "video_prompt": "The Sound presses its waveform palm against a spinning gear and the gear slows to stillness, the entire clock interior holds its breath, waveform body expands filling the chamber with visible resonance",
+      "narration": "It had been ticking inside every silence, waiting to be named."
+    },
+    {
+      "index": 5,
+      "character": "Maren",
+      "image_prompt": "the library again but now all the seashell-books are open and glowing faintly, the maps on the desk have transformed into landscapes with tiny mountains where the notation peaks were, a door that was not there before stands open revealing only warm amber light",
+      "narration": "She drew one final line and heard, for the first time, the sound of something found.",
+      "video_prompt": "Maren stands before the glowing map as tiny landscapes rise from its surface like a relief model assembling itself, she removes her spectacles and holds them up \u2014 through the lenses the open door is visible reflected, she smiles slowly and takes one step toward it"
+    }
+  ]
+}
