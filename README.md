@@ -68,10 +68,6 @@ video_no_subs.mp4    # stitched clips, no subtitles
 final.mp4            # final film with subtitles burned in
 ```
 
-## Cost estimate
-
-~$0.14 per film: 5 × image-to-video @ $0.025 + character portraits + scene images @ ~$0.004 each.
-
 ## Environment variables
 
 | Variable | Default | Description |
